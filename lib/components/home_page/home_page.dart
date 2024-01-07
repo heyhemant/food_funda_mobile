@@ -12,10 +12,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: const Color(0xFF6200EE),
-      //   title: const Text('Flutter Demo Home Page'),
-      // ),
       body:  SafeArea(child: LoginPage()),
     );
   }
