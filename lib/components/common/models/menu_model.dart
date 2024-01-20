@@ -31,7 +31,7 @@ class MenuItem{
   String? itemId;
   String? itemName;
   String? itemDescription;
-  String? itemPrice;
+  num? itemPrice;
   String? itemImage;
   bool isVeg = false;
   bool isAvailable = false;

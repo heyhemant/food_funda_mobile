@@ -1,74 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:food_funda_business/components/login_signup/controllers/signup_controller.dart';
+import 'package:get/get.dart';
 
 class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
+
   @override
-  _SignupPageState createState() => _SignupPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
+  late SignupPageController controller;
   final _formKey = GlobalKey<FormState>();
-  String? _name = '';
-  String _email = '';
-  String _password = '';
+
+  @override
+  void initState() {
+    controller = Get.put(SignupPageController());
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registration Form'),
+        title: const Text('Registration Form'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _name = value;
-                },
+              Obx(
+                () => TextFormField(
+                    controller: controller.nameController,
+                    decoration: InputDecoration(
+                        labelText: 'Resturant',
+                        errorText: controller.nameError.value)),
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _email = value!;
-                },
+              Obx(() => TextFormField(
+                    controller: controller.phoneController,
+                    keyboardType: TextInputType.phone,
+                    maxLength: 10,
+                    decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        counterText: '',
+                        errorText: controller.phoneError.value),
+                  )),
+              Obx(
+                () => TextFormField(
+                    controller: controller.addresssController,
+                    decoration: InputDecoration(
+                        labelText: 'Address',
+                        errorText: controller.addressError.value)),
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _password = value!;
-                },
+              Obx(
+                () => TextFormField(
+                    controller: controller.cityController,
+                    decoration: InputDecoration(
+                        labelText: 'City',
+                        errorText: controller.cityError.value)),
               ),
-              SizedBox(height: 16.0),
+              Obx(
+                () => TextFormField(
+                    controller: controller.pincodeController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    decoration: InputDecoration(
+                        labelText: 'Pincode',
+                        counterText: '',
+                        errorText: controller.pincodeError.value)),
+              ),
+              const SizedBox(height: 16.0),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    // Perform registration logic here
+                onPressed: () async {
+                  _formKey.currentState!.save();
+                  final res = await controller.registerRestaurant();
+                  if (res.first) {
+                    await Get.dialog(
+                      AlertDialog(
+                        title: const Text('Success'),
+                        content: const Text('Restaurant Registered'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                             
+                            },
+                            child: const Text('Ok'),
+                          )
+                        ],
+                      ),
+                    );
+                  } else {
+                    Get.snackbar('Error', res.second);
                   }
                 },
-                child: Text('Register'),
+                child: const Text('Register'),
               ),
             ],
           ),

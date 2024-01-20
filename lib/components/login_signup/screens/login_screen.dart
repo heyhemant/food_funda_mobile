@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:food_funda_business/components/common/common_ui/color_funda.dart';
 import 'package:food_funda_business/components/common/common_ui/text_funda.dart';
-import 'package:food_funda_business/components/home_page/home_page.dart';
+import 'package:food_funda_business/components/home_page/app_root.dart';
 import 'package:food_funda_business/components/login_signup/controllers/login_controller.dart';
-import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -41,10 +40,10 @@ class _LoginPageState extends State<LoginPage> {
                           MapEntry<bool, String?> response = await loginController.loginWithGmail();
                           if (response.key) {
                             // ignore: use_build_context_synchronously
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HomePage()
+                                builder: (context) => AppRoot()
                               ),
                             );
                           } else {

@@ -1,12 +1,17 @@
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthController extends GetxController {
-  RxBool isUserLoggedIn = false.obs;
+class AuthServices extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  Rx<User?> user = Rx(null);
+
+  bool isUserLoggedIn() {
+    return user.value != null;
+  }
 
   @override
   void onInit() async {
@@ -16,14 +21,10 @@ class AuthController extends GetxController {
 
   Future<void> updateLoginStatus() async {
     try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        isUserLoggedIn.value = true;
-      } else {
-        isUserLoggedIn.value = false;
-      }
+      await _auth.currentUser?.reload();
+      user.value = _auth.currentUser;
     } catch (e) {
-      isUserLoggedIn.value = false;
+      user.value = null;
       if (kDebugMode) {
         print('food funda error ${e.toString()}');
       }
@@ -45,6 +46,8 @@ class AuthController extends GetxController {
 
   Future<void> signInWithGoogle() async {
     try {
+      await _auth.signOut();
+      await googleSignIn.signOut();
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       final GoogleSignInAuthentication? googleAuth =
@@ -56,7 +59,6 @@ class AuthController extends GetxController {
       );
       await _auth.signInWithCredential(credential);
       await updateLoginStatus();
-      
     } catch (e) {
       if (kDebugMode) {
         print('food funda error ${e.toString()}');

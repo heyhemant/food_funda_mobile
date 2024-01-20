@@ -1,4 +1,4 @@
-import 'package:food_funda_business/components/common/auth_controller.dart';
+import 'package:food_funda_business/services/auth_services/auth_services.dart';
 import 'package:get/get.dart';
 
 class LogInController extends GetxController {
@@ -8,10 +8,11 @@ class LogInController extends GetxController {
   RxBool isLoading = false.obs;
   
   Future<MapEntry<bool, String?>> loginWithGmail()async{
+    
     isLoading.value = true;
-    await Get.find<AuthController>().signInWithGoogle();
+    await Get.find<AuthServices>().signInWithGoogle();
     isLoading.value = false;
-    if(Get.find<AuthController>().isUserLoggedIn.value){
+    if(Get.find<AuthServices>().isUserLoggedIn()){
       return const MapEntry(true, null);
       }else{
       return const MapEntry(false, 'Something went wrong');

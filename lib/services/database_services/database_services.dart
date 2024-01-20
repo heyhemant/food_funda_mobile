@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:food_funda_business/components/common/models/restruant_model.dart';
 import 'package:food_funda_business/components/common/models/menu_model.dart';
-import 'package:food_funda_business/components/common/models/order_model.dart' as UserOrder;
+import 'package:food_funda_business/components/order_details.dart/order_model.dart' as UserOrder;
 
 
 class DatabaseServices {
@@ -17,135 +17,128 @@ class DatabaseServices {
 
   DatabaseServices._internal();
 
+
+  Future<bool> createDoc({required String collection, required String id, required Map<String, dynamic> data}) async {
+    try{
+    await _db.collection(collection).doc(id).set(data);
+    return true;
+    }
+    catch (e){
+      if (kDebugMode) {
+        print('Food Funda error ${e.toString()}');
+      }
+      return false;
+    }
+  }
+
+  Future<bool> updateDoc({required String collection, required String id, required Map<String, dynamic> data}) async {
+    try{
+    await _db.collection(collection).doc(id).update(data);
+    return true;
+    }
+    catch (e){
+      if (kDebugMode) {
+        print('Food Funda error ${e.toString()}');
+      }
+      return false;
+    }
+  }
+
+  Future<bool> deleteDoc({required String collection, required String id}) async {
+    try{
+    await _db.collection(collection).doc(id).delete();
+    return true;
+    }
+    catch (e){
+      if (kDebugMode) {
+        print('Food Funda error ${e.toString()}');
+      }
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> readDoc({required String collection, required String docId}) async {
+    try{
+    final DocumentSnapshot doc = await _db.collection(collection).doc(docId).get();
+    return doc.data() as Map<String, dynamic>;
+    }
+    catch (e){
+      if (kDebugMode) {
+        print('Food Funda error ${e.toString()}');
+      }
+      return null;
+    }
+  }
+
+
     // Create User
   Future<bool> createUser({required Restaurant restaurant}) async {
-    try{
-      const String collection = 'restaurants';
-    final String id = restaurant.uuid!;
+    bool result = await createDoc(collection: 'restaurants', id: restaurant.uuid!, data: restaurant.toJson());
+    return result;
+  }
+  Future<bool> updateUserProfile({required Restaurant restaurant}) async {
     final Map<String, dynamic> data = restaurant.toJson();
-    await _db.collection(collection).doc(id).set(data);
-    return true;
-    }
-    catch (e){
-      if (kDebugMode) {
-        print('Food Funda error ${e.toString()}');
-      }
+    final String? id = restaurant.uuid;
+    if(id == null) {
       return false;
     }
+    bool result = await updateDoc(collection: 'restaurants', id: id, data: data);
+    return result;
   }
 
-  // Read User
-  Future<Restaurant?> readUser({required String uuid}) async {
-    try{
-      const String collection = 'restaurants';
-    final DocumentSnapshot doc = await _db.collection(collection).doc(uuid).get();
-    return Restaurant.fromJson(doc.data() as Map<String, dynamic>);
-    }
-    catch (e){
-      if (kDebugMode) {
-        print('Food Funda error ${e.toString()}');
-      }
-      return null;
-    }
+  Future<bool> deleteUserProfile({required String uuid}) async {
+    bool result = await deleteDoc(collection: 'restaurants', id: uuid);
+    return result;
   }
 
-  // Update User
-  Future<bool> updateUser({required Restaurant restaurant}) async {
-    try{
-      const String collection = 'restaurants';
-    final String id = restaurant.uuid!;
-    final Map<String, dynamic> data = restaurant.toJson();
-    await _db.collection(collection).doc(id).update(data);
-    return true;
+  Future<bool> createMenu({required Menu menu})async{
+    final data = menu.toJson();
+    final String? id = menu.restaurantId;
+    if(id == null){
+      return Future.value(false);
     }
-    catch (e){
-      if (kDebugMode) {
-        print('Food Funda error ${e.toString()}');
-      }
-      return false;
-    }
+    return await createDoc(collection: 'menus', id: id, data: data);
   }
 
-  // Delete User
-  Future<bool> deleteUser({required String uuid}) async {
-    try{
-      const String collection = 'restaurants';
-    await _db.collection(collection).doc(uuid).delete();
-    return true;
-    }
-    catch (e){
-      if (kDebugMode) {
-        print('Food Funda error ${e.toString()}');
-      }
-      return false;
-    }
+  Future<bool> deleteMenu({required String uuid}) async {
+    const String collection = 'menus';
+    bool result = await deleteDoc(collection: collection, id: uuid);
+    return result;
   }
 
-  // Create Menu
-  Future<bool> createMenu({required Menu menu}) async {
-    try{
-      const String collection = 'menus';
-    final String id = menu.restaurantId!;
-    final Map<String, dynamic> data = menu.toJson();
-    await _db.collection(collection).doc(id).set(data);
-    return true;
+  // Future<Menu?> readMenu({required String uuid}) async {
+  //   const String collection = 'menus';
+  //   Future<Map<String, dynamic>?> response = readDoc(collection: collection, docId: uuid);
+  //   Menu? menu = Menu.fromJson(await response);
+  //   return menu;
+  // }
+
+  //update menu
+  Future<bool> updateMenu({required Menu menu})async{
+    final data = menu.toJson();
+    final String? id = menu.restaurantId;
+    if(id == null){
+      return Future.value(false);
     }
-    catch (e){
-      if (kDebugMode) {
-        print('Food Funda error ${e.toString()}');
-      }
-      return false;
-    }
+    return await updateDoc(collection: 'menus', id: id, data: data);
   }
 
-  // Read Menu
-  Future<Menu?> readMenu({required String uuid}) async {
-    try{
-      const String collection = 'menus';
-    final DocumentSnapshot doc = await _db.collection(collection).doc(uuid).get();
-    return Menu.fromJson(doc.data() as Map<String, dynamic>);
-    }
-    catch (e){
-      if (kDebugMode) {
-        print('Food Funda error ${e.toString()}');
-      }
-      return null;
-    }
-  }
+//  Future<List<UserOrder.Order>> readOrder({required String uuid}) async {
+//   try{
+//     final String collection = 'orders-$uuid';
+//   final response = await readDoc(collection: collection, docId: uuid);
+//   final List<UserOrder.Order> orders = <UserOrder.Order>[];
+//   for (final order  in response[0]) {
+//     orders.add(UserOrder.Order.fromJson(order as Map<String, dynamic>));
+//   }
+//   return orders;
+//   }
+//   catch (e){
+//     if (kDebugMode) {
+//       print('Food Funda error ${e.toString()}');
+//     }
+//     return <UserOrder.Order>[];
+//   }
+//  }
 
-  // Update Menu
-  Future<bool> updateMenu({required Menu menu}) async {
-    try{
-      const String collection = 'menus';
-    final String id = menu.restaurantId!;
-    final Map<String, dynamic> data = menu.toJson();
-    await _db.collection(collection).doc(id).update(data);
-    return true;
-    }
-    catch (e){
-      if (kDebugMode) {
-        print('Food Funda error ${e.toString()}');
-      }
-      return false;
-    }
-  }
-
-  //read orders
-  Future<List<UserOrder.Order>> readOrder({required String uuid}) async {
-    try{
-    final String collection = 'orders-$uuid';
-    final QuerySnapshot querySnapshot = await _db.collection(collection).get();
-    final List<UserOrder.Order> orders = <UserOrder.Order>[];
-    for (final QueryDocumentSnapshot doc in querySnapshot.docs) {
-      orders.add(UserOrder.Order.fromJson(doc.data() as Map<String, dynamic>));
-    }
-    return orders;
-    }
-    catch (e){
-      if (kDebugMode) {
-        print('Food Funda error ${e.toString()}');
-      }
-      return <UserOrder.Order>[];
-    }
-  }
 }

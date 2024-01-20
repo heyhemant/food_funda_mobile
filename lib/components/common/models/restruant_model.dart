@@ -1,3 +1,5 @@
+import 'package:food_funda_business/components/common/models/menu_model.dart';
+
 class Restaurant {
   String? name;
   String? uuid;
@@ -5,6 +7,7 @@ class Restaurant {
   String? email;
   Location? location;
   String? imageUrl;
+  Menu? menu;
 
   Restaurant({
     this.name,
@@ -13,6 +16,7 @@ class Restaurant {
     this.email,
     this.location,
     this.imageUrl,
+    this.menu
   });
 
   Restaurant.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,9 @@ class Restaurant {
         ? Location.fromJson(json['location'])
         : null;
     imageUrl = json['image_url'];
+    menu = json['menu'] != null
+        ? Menu.fromJson(json['menu'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -36,6 +43,9 @@ class Restaurant {
       data['location'] = location!.toJson();
     }
     data['image_url'] = imageUrl;
+    if (menu != null) {
+      data['menu'] = menu!.toJson();
+    }
     return data;
   }
 }
